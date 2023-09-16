@@ -1,0 +1,45 @@
+.registerForm {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: aqua;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.reg_data {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    align-items: center;
+    margin-top: 50px;
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 50px;
+    column-gap: 10%;
+
+}
+
+input {
+    width: 100%;
+    gap: 20%;
+    border-radius: 10px;
+
+}
+
+.registerButton {
+    margin: 10%;
+    background-color: green;
+    border: none;
+    width: 100%;
+    border-radius: 5%;
+    height: 40px;
+    color: white;
+}
+
+
+
+.input {
+    border-radius: 10px;
+}
