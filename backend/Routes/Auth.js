@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../Models/userSchema')
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
+const authtokenHandler = require('../Middlewares/checkAuthToken')
 
 
 
@@ -14,16 +15,24 @@ router.get('/test', async (req, res) => {
     })
 })
 
+function createResponse(ok, message, data) {
+    return {
+        ok,
+        message,
+        data
+    }
+}
+
 // register
 
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
     try {
         const { name, email, password } = req.body;
         const existingUser = await User.findOne({ email: email });
 
         if (existingUser) {
             return res.status(409).json(
-                { message: 'email already exist' }
+                createResponse(false, 'email already exists')
             )
         }
 
@@ -34,12 +43,13 @@ router.post('/register', async (req, res) => {
         })
 
         await newUser.save();
-        res.status(201).json({
-            message: " user register successfully"
-        })
+        res.status(201).json(
+            createResponse(true, 'user registered successfully')
+
+        )
     } catch (err) {
         res.status(501).json({
-            error: err.message
+            message: err
         })
 
     }
@@ -47,22 +57,22 @@ router.post('/register', async (req, res) => {
 
 //login
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email: email })
-        if (!user) {
-            return res.status(400).json({
-                message: "user not register"
-            })
-        }
+        const user = await User.findOne({ email })
+        if (!user) return res.status(400).json(
+            createResponse(false, 'Invalid credentials')
+        )
+
+
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(400).json({
-                message: "invalid password"
-            })
+            return res.status(400).json(
+                createResponse(false, 'Invalid credentials')
+            )
         }
 
         const authToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '10m' });
@@ -70,15 +80,27 @@ router.post('/login', async (req, res, next) => {
 
         res.cookie('authToken', authToken, { httpOnly: true })
         res.cookie('refreshToken', refreshToken, { httpOnly: true })
-        res.status(200).json({
-            message: "login successful"
-        })
+        res.status(200).json(
+            createResponse(true, "login successful", {
+                authToken,
+                refreshToken
+            })
+
+        )
 
     } catch (err) {
         res.status(501).json({
-            error: err.message
+            error: err.message()
         })
     }
+})
+
+router.get('/checklogin', authtokenHandler, async (req, res) => {
+
+    res.status(201).json({
+        ok: true,
+        message: 'user authenticated suceesfully'
+    })
 })
 
 module.exports = router;

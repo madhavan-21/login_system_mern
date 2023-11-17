@@ -1,13 +1,33 @@
 import React from 'react'
 import './Register.css'
-import { useEffect, useState } from 'react'
-import Login from './Login';
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+
 
 const Register = () => {
     const [register, setRegister] = useState({ name: "", email: "", password: "" });
+    const PORT = 'http://localhost:8000';
+    const navigate = useNavigate();
 
     const handleRegister = () => {
-        console.log(register)
+        fetch(`${PORT}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(register)
+        }).then((res) => {
+            console.log("register successfully")
+            if (res.status === 200 || res.status === 201) {
+                navigate('/login');
+
+            }
+            console.log(res.status);
+
+
+        }).catch((err) => {
+            console.log(err)
+        })
     }
 
 
@@ -35,7 +55,7 @@ const Register = () => {
                         Register
                     </button>
                     <div>
-                        Already have a account <button onClick={<Login />}>Login</button>
+                        Already have a account ? <Link to="/">login</Link>
                     </div>
                 </div>
 

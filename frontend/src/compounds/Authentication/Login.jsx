@@ -1,12 +1,31 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import './Login.css';
+import { Link , useNavigate } from "react-router-dom";
+
 const Login = () => {
 
     const [login, setlogin] = useState({ email: " ", password: " " })
 
+    const PORT = 'http://localhost:8000';    
+    const navigate = useNavigate();
+
     const registerhandler = () => {
-        console.log(login);
+
+        fetch(`${PORT}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(login)
+        }).then((res) => {
+            if(res.status === 200 || res.status === 201 ){
+                navigate('/home');
+            }
+        }).catch((err) => {
+            console.log(err)
+        })
+
     }
 
     return (
@@ -24,7 +43,7 @@ const Login = () => {
                     login
                 </button>
                 <div>
-                    Already have a account <button >Register</button>
+                    don't have a account ? <Link to="/register">register</Link>
                 </div>
 
 
